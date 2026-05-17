@@ -1,0 +1,21 @@
+[package]
+name = "turso-timeseries-e2e"
+description = "End-to-end tests for turso-timeseries standalone and browser flows"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+mimalloc = { version = "=0.1.48", default-features = false }
+tempfile = "=3.27.0"
+turso-timeseries = { path = "../turso-timeseries" }
+turso_core = { version = "=0.6.0-pre.30", default-features = true, features = ["cli_only"] }
+
+[dev-dependencies]
+turso-timeseries-ext = { path = "../turso-timeseries-ext" }
+
+[[test]]
+name = "standalone"
+path = "tests/standalone.rs"

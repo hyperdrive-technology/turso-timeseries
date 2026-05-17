@@ -1,0 +1,22 @@
+[package]
+name = "turso-timeseries"
+description = "Time-series helpers for Turso Database (pure Rust), not TimescaleDB-compatible"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+turso = { version = "=0.6.0-pre.30", default-features = false, optional = true }
+tokio = { version = "=1.52.3", features = ["macros", "rt-multi-thread"], optional = true }
+
+[features]
+default = []
+native-turso = ["dep:turso"]
+integration-tests = ["native-turso", "dep:tokio"]
+
+[[test]]
+name = "integration"
+path = "tests/integration.rs"
+required-features = ["integration-tests"]

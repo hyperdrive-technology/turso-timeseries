@@ -1,0 +1,22 @@
+{
+  "name": "@hyperdrive/turso-timeseries-browser-e2e",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build:custom-turso": "node scripts/build-custom-turso-wasm.mjs",
+    "build:extension": "node scripts/build-wasm-extension.mjs",
+    "test": "npm run build:extension && vitest run",
+    "test:custom": "npm run build:custom-turso && npm test"
+  },
+  "dependencies": {
+    "@tursodatabase/database-wasm": "0.6.0-pre.30"
+  },
+  "devDependencies": {
+    "@vitest/browser": "3.2.4",
+    "playwright": "1.57.0",
+    "typescript": "5.9.3",
+    "vite": "7.2.7",
+    "vitest": "3.2.4",
+    "wabt": "1.0.39"
+  }
+}
