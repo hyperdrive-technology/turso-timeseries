@@ -1,0 +1,7 @@
+{
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+  "install": "rustup show && rustup target add wasm32-wasip1-threads && cargo fetch && cd e2e/browser && npm ci && npx playwright install chromium"
+}
