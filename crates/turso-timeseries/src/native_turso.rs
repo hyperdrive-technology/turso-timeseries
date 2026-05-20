@@ -4,7 +4,7 @@
 //! planning stay in the core crate surface, while this adapter only translates
 //! bind values and executes statements against the current `turso` crate API.
 
-use crate::migrations::MIGRATIONS;
+use turso_timeseries_catalog::MIGRATIONS;
 use crate::{SqlBatch, SqlStatement, SqlValue};
 
 /// Apply all embedded migrations to a native Turso connection.

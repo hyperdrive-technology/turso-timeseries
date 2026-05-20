@@ -1,0 +1,16 @@
+[package]
+name = "turso-timeseries-core"
+description = "Portable time-series core for turso-timeseries (no Turso dependency)"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+
+[features]
+default = ["std", "line-protocol"]
+std = []
+alloc = []
+line-protocol = []
+
+[dependencies]

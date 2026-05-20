@@ -2,6 +2,12 @@
 resolver = "2"
 members = [
   "crates/turso-timeseries",
+  "crates/turso-timeseries-core",
+  "crates/turso-timeseries-catalog",
+  "crates/turso-timeseries-native",
+  "crates/turso-timeseries-wasm-ext",
+  "crates/turso-timeseries-arrow",
+  "crates/turso-timeseries-datafusion",
   "crates/turso-timeseries-browser-wasm",
   "crates/turso-timeseries-e2e",
   "crates/turso-timeseries-ext",
@@ -17,3 +23,7 @@ rust-version = "1.95"
 [workspace.dependencies]
 # Version shared by extension crates; enable `features = ["static"]` on the dependency (see limbo_fuzzy).
 turso_ext = { version = "=0.6.0-pre.30" }
+
+[profile.release]
+lto = true
+opt-level = "s"

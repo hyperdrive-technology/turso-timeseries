@@ -1,0 +1,15 @@
+[package]
+name = "turso-timeseries-datafusion"
+description = "Optional DataFusion TableProvider for turso-timeseries"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+
+[features]
+default = []
+
+[dependencies]
+turso-timeseries-core = { path = "../turso-timeseries-core" }
+turso-timeseries-arrow = { path = "../turso-timeseries-arrow" }

@@ -8,12 +8,15 @@ repository.workspace = true
 rust-version.workspace = true
 
 [dependencies]
+turso-timeseries-core = { path = "../turso-timeseries-core" }
+turso-timeseries-catalog = { path = "../turso-timeseries-catalog" }
+turso-timeseries-native = { path = "../turso-timeseries-native", optional = true }
 turso = { version = "=0.6.0-pre.30", default-features = false, optional = true }
 tokio = { version = "=1.52.3", features = ["macros", "rt-multi-thread"], optional = true }
 
 [features]
 default = []
-native-turso = ["dep:turso"]
+native-turso = ["dep:turso", "dep:turso-timeseries-native"]
 integration-tests = ["native-turso", "dep:tokio"]
 
 [[test]]

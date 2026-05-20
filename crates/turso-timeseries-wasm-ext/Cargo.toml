@@ -1,0 +1,17 @@
+[package]
+name = "turso-timeseries-wasm-ext"
+description = "Turso WASM extension artifact for turso-timeseries (PR #6256 ABI)"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+wee_alloc = "0.4"
+
+[package.metadata.wasm-pack.profile.release]
+wasm-opt = false

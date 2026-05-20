@@ -1,91 +1,121 @@
 # turso-timeseries
 
-Rust-first time-series helpers on top of **[Turso Database](https://github.com/tursodatabase/turso)** — the **pure Rust**, SQLite-compatible engine (`turso` / `turso_core` on crates.io). **Not** TimescaleDB-compatible and **not** targeting libSQL or `@libsql/client`.
+A pure-Rust time-series extension for [Turso Database](https://github.com/tursodatabase/turso).
 
-Scope: bucketing, catalog/recipes, retention patterns, and SQL you run through **Turso’s Rust API** — same conceptual surface as the earlier feasibility note, different stack.
+`turso-timeseries` provides TimescaleDB-inspired hypertables and rollups, InfluxDB-inspired line protocol ingest and TSM-style segment storage, and a Turso-native WASM extension artifact for browser/local-first use.
 
-Roadmap and schema notes: [PLAN.md](PLAN.md). **Testing tiers and phase exit gates:** [docs/TESTING.md](docs/TESTING.md).
+## Status
 
-**Design references (not compatibility targets):** [docs/TIMESCALE_AND_INFLUX_STRUCTURES.md](docs/TIMESCALE_AND_INFLUX_STRUCTURES.md) surveys the TimescaleDB and InfluxDB 3 (`main`) GitHub layouts (policies, catalog, WAL/query/write crates) and maps concepts to this repo’s Turso-first direction. The same doc links **[Sqlite3_partitioner](https://github.com/nuuskamummu/Sqlite3_partitioner/)** as a **SQLite `CREATE VIRTUAL TABLE … USING partitioner(...)`** example for how a time-bucketed series can be modeled as a virtual table module (interval + partition column), distinct from this repo’s current `_tts_*` catalog + SQL migrations path.
+Experimental. The browser-native extension path follows Turso's unstable WASM extension design from [PR #6256](https://github.com/tursodatabase/turso/pull/6256).
 
-**Engine status:** Turso Database is still **beta**; pin versions and read upstream release notes before production.
+## Targets
 
-## Turso build matrix (Hyperdrive)
+| Artifact | Crate / package | Use |
+|----------|-----------------|-----|
+| **Core** | `turso-timeseries-core` | Portable models, codecs, aggregates, line protocol (no Turso dependency) |
+| **Catalog** | `turso-timeseries-catalog` | Embedded `_tts_*` migrations |
+| **Native** | `turso-timeseries-native` | `Timeseries::install`, ingest, query, maintenance via the `turso` crate |
+| **WASM extension** | `turso-timeseries-wasm-ext` | `CREATE EXTENSION turso_timeseries LANGUAGE wasm AS X'...'` |
+| **JS helper** | `@hyperdrive-technology/turso-timeseries` | Hex loading and SQL wrappers (not the extension ABI itself) |
+| **Facade** | `turso-timeseries` | Back-compat SQL planners + optional `native-turso` feature |
 
-| Target | Turso stack | Notes |
-|--------|-------------|--------|
-| **Native** (`std`, host triples) | [`turso`](https://crates.io/crates/turso) (+ [`turso_core`](https://crates.io/crates/turso_core) where you need lower-level hooks) | Normal `cargo build` / embedded Linux. |
-| **WASM** (`wasm32-unknown-unknown`) | **`turso-wasm`** + **`sync-wasm`** | Same IEC/runtime logic compiled to wasm; **DB + sync** come from your wasm-oriented Turso build (workspace members, path deps, or internal crates — whatever pins you use alongside upstream). |
+## Not WASI/WASIX
 
-This repo’s helpers are **engine-agnostic** at the type level: they compile for **both** native and wasm; **which** Turso artifacts you link is chosen by the **root** binary or wasm package (native `turso` vs wasm **`turso-wasm` / `sync-wasm`** split).
+The browser extension is **not** a WASI or WASIX application. It is a raw WebAssembly module (`wasm32-unknown-unknown`) that exports the symbols expected by Turso's WASM extension ABI (`memory`, `turso_malloc`, `turso_ext_init`, scalar functions).
 
-## Layout (planned)
+Do **not** use `wasm-bindgen` for the extension artifact. The optional `turso-timeseries-browser-wasm` crate remains a separate wasm-bindgen helper for legacy browser tests.
 
-| Crate / area | Role |
-|--------------|------|
-| `crates/turso-timeseries` | Shared types, SQL snippets, `time_bucket`-style helpers, migrations you run through **your** Turso dependency (native or wasm) |
+## Features
 
-This crate keeps native Turso integration behind optional features. **Application crates** can either execute the dependency-free SQL plans themselves, or enable `native-turso` to use the thin adapter pinned to `turso = 0.6.0-pre.30`. Browser packages should still use **`turso-wasm` + `sync-wasm`** (per your layout) and the dependency-free core surface.
+- Hypertables, chunks, and segment BLOBs inside Turso tables
+- Line protocol ingest (`write_line_protocol`)
+- `time_bucket` / duration parsing (core + WASM scalars)
+- Internal aggregate state machines (count, sum, avg, min, max, first, last)
+- Materialized rollups and retention helpers
+- Stats tables and maintenance job catalog (PLAN-v2 migration `0005`)
+- Optional Arrow / DataFusion adapter stubs (native/server only)
 
-## Targets and recommendations
-
-| Deployment | IEC / control runtime | Storage | WASM? | Recommendation |
-|------------|----------------------|---------|---------|----------------|
-| **Native Linux/macOS / Windows** | Rust `std` + async runtime as needed | **`turso`** in-process | **No** | Single process; keep DB work off RT-critical threads. |
-| **Linux + PREEMPT_RT** | RT scan on **FIFO / isolated CPU** | **`turso`** on normal threads | No | Never run heavy queries in the PLC scan; queue workers. |
-| **Browser** | Rust → **`wasm32-unknown-unknown`** | **`turso-wasm`** + **`sync-wasm`** | **Yes** | One wasm app linking the wasm Turso stack + sync; pair with workers / OPFS per Turso’s browser guidance. |
-| **Embedded Linux (`std`)** | One binary | **`turso`** | No | Single binary; flash-friendly I/O. |
-| **Embassy / `no_std` MCU** | Firmware | **No full Turso** | N/A | Gateway runs Turso; MCU uses helpers only if you add a `core` slice later. |
-
-### Notes
-
-- **Native:** `turso` only — no wasm toolchains involved.
-- **Browser / wasm32:** use your **`turso-wasm`** and **`sync-wasm`** build lines for the embedded DB + cloud/offline sync; keep `turso-timeseries` as shared logic compiled into that same wasm root.
-- **Embedded / PREEMPT_RT:** same timing-domain split as always.
-
-## Repo status
-
-Scaffold + **Phase 2 native Turso integration path**:
-
-- embedded SQL migrations (`crates/turso-timeseries/migrations/`, exposed via [`migrations`](crates/turso-timeseries/src/migrations.rs));
-- dependency-free SQL planning helpers for ingest and policies;
-- columnar hypertable/chunk/segment catalog tables with per-column blobs for `ts_ns`, `value_real` and `quality`;
-- columnar segment planners for real-valued samples, materialized rollup refreshes over segment stats, and retention helpers that delete fully expired chunks;
-- optional `native-turso` adapter that applies migrations and executes planned statements against the pinned native `turso` crate;
-- DB-backed integration tests under `cargo test --features integration-tests`;
-- standalone E2E tests that build and load `turso-timeseries-ext` with `SELECT load_extension(...)` and verify extension scalar functions;
-- a native `tts_hypertable` virtual table module in `turso-timeseries-ext` with intended creation syntax `CREATE VIRTUAL TABLE samples USING tts_hypertable(samples, 60000000000)`;
-- browser E2E wiring under `e2e/browser` for Turso PR #6256: build/install the custom `@tursodatabase/database-wasm`, load the generated timeseries WASM module with `CREATE EXTENSION ... LANGUAGE wasm AS X'...'`, and expose a browser sandbox for ad hoc SQL against the WASM DB.
-
-Current caveat: scalar dynamic extension loading is verified in standalone
-Turso. The native dynamic vtab implementation exists, but the pinned Turso
-dynamic extension path does not yet successfully round-trip vtab schema strings
-from the loaded `cdylib`, so standalone E2E does not exercise `CREATE VIRTUAL
-TABLE` yet. Browser SQL extension loading requires the custom PR #6256 package
-until that support is published upstream.
-
-The crate also exposes dependency-free planning helpers for the conservative row layout:
+## Quick start (native)
 
 ```rust
-use turso_timeseries::{
-    MetricPoint, RollupAggregate, SeriesKey, plan_create_rollup_policy,
-    plan_write_batch, time_bucket_ns,
-};
+use turso::Builder;
+use turso_timeseries_native::Timeseries;
 
-let series = SeriesKey::new("temperature", [("device", "pump-1")])?;
-let point = MetricPoint::real(series, 1_778_544_000_000_000_000, 23.4)?;
+#[tokio::main]
+async fn main() -> turso::Result<()> {
+    let db = Builder::new_local("metrics.db").build().await?;
+    let conn = db.connect()?;
 
-let batch = plan_write_batch(&[point]);
-// Execute `batch.statements` in order inside a Turso transaction, binding
-// each statement's `SqlValue` params to the matching `?` placeholders.
+    Timeseries::install(&conn).await?;
+    Timeseries::create_hypertable(&conn, "metrics", "time", 60 * 60 * 1_000_000).await?;
+    Timeseries::write_line_protocol(
+        &conn,
+        "metrics,device_id=a value=1.5 1778000000000000000",
+    )
+    .await?;
 
-let bucket = time_bucket_ns(1_778_544_123_000_000_000, 60_000_000_000)?;
-let policy = plan_create_rollup_policy(
-    "_tts_samples",
-    "samples_1m",
-    60_000_000_000,
-    &[RollupAggregate::Avg, RollupAggregate::Min, RollupAggregate::Max],
-)?;
+    let rows = Timeseries::read_points(&conn, "metrics", None, None).await?;
+    println!("points: {}", rows.len());
+    Ok(())
+}
 ```
 
-These helpers deliberately return SQL plus bind values instead of taking a concrete database connection, keeping the same core usable from native Turso, browser WASM bindings, and future extension/static-linking experiments.
+## Quick start (browser extension)
+
+```ts
+import { connect } from "@tursodatabase/database-wasm";
+import { loadTimeseriesExtension } from "@hyperdrive-technology/turso-timeseries";
+
+const db = await connect("metrics.db");
+await loadTimeseriesExtension(db, { wasmUrl: "/turso_timeseries_ext.wasm" });
+await db.exec("SELECT tts_version()");
+await db.exec("SELECT time_bucket('5m', 1778000123456789)");
+```
+
+Build the WASM artifact:
+
+```bash
+rustup target add wasm32-unknown-unknown
+cargo build -p turso-timeseries-wasm-ext --target wasm32-unknown-unknown --release
+# output: target/wasm32-unknown-unknown/release/turso_timeseries_wasm_ext.wasm
+```
+
+## Workspace layout
+
+See [PLAN-v2.md](PLAN-v2.md) for the full phased roadmap (Phases 0–13). Implementation status:
+
+| Phase | Theme | Status |
+|-------|--------|--------|
+| 0 | README / standalone docs | Done |
+| 1 | `turso-timeseries-core` | Done |
+| 2 | Catalog + install | Done |
+| 3 | Native write/read | Done |
+| 4–5 | WASM scalars + manifest | Done (`turso-timeseries-wasm-ext`) |
+| 6 | Aggregate engine | Done (core) |
+| 7 | Rollups / invalidation | Partial (native maintenance + legacy planners) |
+| 8 | Virtual tables | Partial (`turso-timeseries-ext` native vtab; WASM vtabs planned) |
+| 9 | Join pushdown / stats | Partial (stats tables + cost estimator in core) |
+| 10 | Maintenance engine | Done (native `run_maintenance`) |
+| 11 | JS helper package | Done (`packages/turso-timeseries-js`) |
+| 12 | Arrow / DataFusion | Stubs only |
+| 13 | Sync repo | Documented in PLAN-v2 (out of scope here) |
+
+## Testing
+
+```bash
+cargo test -p turso-timeseries-core
+cargo test -p turso-timeseries
+cargo test -p turso-timeseries --features integration-tests
+cargo test -p turso-timeseries-native
+```
+
+See [docs/TESTING.md](docs/TESTING.md) for browser E2E and extension loading notes.
+
+## Plans
+
+- [PLAN-v2.md](PLAN-v2.md) — current canonical architecture and phases
+- [PLAN.md](PLAN.md) — earlier Hyperdrive-oriented roadmap (historical)
+
+## License
+
+MIT OR Apache-2.0
