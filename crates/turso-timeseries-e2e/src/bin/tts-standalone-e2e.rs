@@ -37,7 +37,7 @@ fn run() {
     );
     assert_eq!(
         query_one_text(io.as_ref(), &conn, "SELECT tts_extension_loaded()"),
-        "turso-timeseries-ext"
+        "turso-timeseries-ext-native"
     );
     assert_eq!(
         query_one_i64(io.as_ref(), &conn, "SELECT tts_time_bucket_ns(1500, 1000)"),
@@ -102,7 +102,7 @@ fn run() {
 
 fn build_extension_cdylib() -> PathBuf {
     let status = Command::new(env!("CARGO"))
-        .args(["build", "-p", "turso-timeseries-ext"])
+        .args(["build", "-p", "turso-timeseries-ext-native"])
         .status()
         .expect("spawn cargo build for extension");
     assert!(status.success(), "extension cdylib build failed");

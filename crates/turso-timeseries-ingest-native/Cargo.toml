@@ -1,0 +1,12 @@
+[package]
+name = "turso-timeseries-ingest-native"
+description = "Native ingest runtime (Tokio transport → tts_write_batch)"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+turso-timeseries-ingest-core = { path = "../turso-timeseries-ingest-core" }
+tokio = { version = "=1.52.3", features = ["net", "rt-multi-thread", "macros", "sync"] }

@@ -14,7 +14,7 @@ turso-timeseries = { path = "../turso-timeseries" }
 turso_core = { version = "=0.6.0-pre.30", default-features = true, features = ["cli_only"] }
 
 [dev-dependencies]
-turso-timeseries-ext = { path = "../turso-timeseries-ext" }
+turso-timeseries-ext-native = { path = "../turso-timeseries-ext-native" }
 
 [[test]]
 name = "standalone"

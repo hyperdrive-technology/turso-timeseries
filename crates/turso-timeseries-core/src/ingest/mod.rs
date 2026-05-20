@@ -2,8 +2,11 @@
 mod line_protocol;
 
 mod batch;
+mod encoded_batch;
 mod validator;
 mod write_buffer;
+
+pub use encoded_batch::{encode_batch, BATCH_MAGIC};
 
 pub use batch::IngestBatch;
 pub use validator::validate_points;

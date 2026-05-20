@@ -13,7 +13,7 @@ register_extension! {
 
 #[scalar(name = "tts_extension_loaded")]
 fn tts_extension_loaded(&self, _args: &[Value]) -> Value {
-    Value::from_text("turso-timeseries-ext".to_string())
+    Value::from_text("turso-timeseries-ext-native".to_string())
 }
 
 #[scalar(name = "tts_time_bucket_ns")]

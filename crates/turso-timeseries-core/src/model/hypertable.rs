@@ -1,11 +1,8 @@
 #[cfg(not(feature = "std"))]
 use alloc::{string::String, vec::Vec};
 
+use super::ids::HypertableId;
 use super::schema::FieldColumnDef;
-
-/// Opaque hypertable identifier.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
-pub struct HypertableId(pub i64);
 
 /// Chunk interval in microseconds.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]

@@ -17,3 +17,9 @@ pub mod query;
 pub mod storage;
 
 pub use error::{Error, Result};
+
+pub use model::{
+    CardinalityPolicy, EncodedBatch, FieldId, FieldValue, HypertableId, Point, SeriesId,
+    SeriesKeySpec,
+};
+pub use ingest::{encode_batch, BATCH_MAGIC};

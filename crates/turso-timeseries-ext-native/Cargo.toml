@@ -1,6 +1,6 @@
 [package]
-name = "turso-timeseries-ext"
-description = "Turso-native extension for turso-timeseries E2E coverage"
+name = "turso-timeseries-ext-native"
+description = "Native Turso extension (scalars + vtabs; database-facing only)"
 version.workspace = true
 edition.workspace = true
 license.workspace = true

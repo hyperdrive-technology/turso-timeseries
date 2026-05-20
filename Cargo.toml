@@ -5,12 +5,16 @@ members = [
   "crates/turso-timeseries-core",
   "crates/turso-timeseries-catalog",
   "crates/turso-timeseries-native",
-  "crates/turso-timeseries-wasm-ext",
+  "crates/turso-timeseries-ext-wasm",
+  "crates/turso-timeseries-ext-native",
+  "crates/turso-timeseries-ingest-core",
+  "crates/turso-timeseries-ingest-native",
+  "crates/turso-timeseries-ingest-wasm",
+  "crates/turso-timeseries-ingest-wasix",
   "crates/turso-timeseries-arrow",
   "crates/turso-timeseries-datafusion",
   "crates/turso-timeseries-browser-wasm",
   "crates/turso-timeseries-e2e",
-  "crates/turso-timeseries-ext",
 ]
 
 [workspace.package]

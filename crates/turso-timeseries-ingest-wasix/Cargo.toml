@@ -1,0 +1,11 @@
+[package]
+name = "turso-timeseries-ingest-wasix"
+description = "Experimental WASIX ingest compatibility runtime (not browser default)"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+turso-timeseries-ingest-core = { path = "../turso-timeseries-ingest-core" }

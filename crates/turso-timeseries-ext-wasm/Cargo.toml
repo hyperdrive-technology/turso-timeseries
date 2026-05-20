@@ -1,6 +1,6 @@
 [package]
-name = "turso-timeseries-wasm-ext"
-description = "Turso WASM extension artifact for turso-timeseries (PR #6256 ABI)"
+name = "turso-timeseries-ext-wasm"
+description = "Turso WASM extension artifact (CREATE EXTENSION ... LANGUAGE wasm)"
 version.workspace = true
 edition.workspace = true
 license.workspace = true

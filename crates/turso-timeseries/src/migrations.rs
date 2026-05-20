@@ -21,6 +21,9 @@ pub const MIGRATION_0004_VERSION: u32 = 4;
 /// Migration step `0005_*` (PLAN-v2 catalog extensions).
 pub const MIGRATION_0005_VERSION: u32 = 5;
 
+/// Migration step `0006_*` (RECOMMENDATIONS catalog).
+pub const MIGRATION_0006_VERSION: u32 = 6;
+
 pub use turso_timeseries_catalog::{MigrationStep, MIGRATIONS};
 
 /// Collect `CREATE TABLE IF NOT EXISTS <name>` identifiers (Turso/SQLite DDL style).
@@ -101,6 +104,7 @@ mod tests {
         assert_eq!(MIGRATIONS[2].id, "0003_columnar_hypertables");
         assert_eq!(MIGRATIONS[3].id, "0004_materialized_rollups");
         assert_eq!(MIGRATIONS[4].id, "0005_plan_v2_catalog");
+        assert_eq!(MIGRATIONS[5].id, "0006_recommendations_catalog");
     }
 
     #[test]
@@ -128,6 +132,9 @@ mod tests {
             "_tts_series_stats",
             "_tts_tag_index",
             "_tts_maintenance_jobs",
+            "_tts_series_tags",
+            "_tts_ingest_wal",
+            "_tts_tag_stats",
         ] {
             assert!(
                 combined.contains(name),
@@ -156,6 +163,7 @@ mod tests {
         assert_eq!(MIGRATION_0003_VERSION, MIGRATIONS[2].version);
         assert_eq!(MIGRATION_0004_VERSION, MIGRATIONS[3].version);
         assert_eq!(MIGRATION_0005_VERSION, MIGRATIONS[4].version);
+        assert_eq!(MIGRATION_0006_VERSION, MIGRATIONS[5].version);
         assert_eq!(MIGRATIONS.last().unwrap().version, SCHEMA_VERSION);
     }
 

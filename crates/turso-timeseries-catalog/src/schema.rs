@@ -12,3 +12,6 @@ pub const TABLE_HYPERTABLE_STATS: &str = "_tts_hypertable_stats";
 pub const TABLE_SERIES_STATS: &str = "_tts_series_stats";
 pub const TABLE_MAINTENANCE_JOBS: &str = "_tts_maintenance_jobs";
 pub const TABLE_TAG_INDEX: &str = "_tts_tag_index";
+pub const TABLE_SERIES_TAGS: &str = "_tts_series_tags";
+pub const TABLE_INGEST_WAL: &str = "_tts_ingest_wal";
+pub const TABLE_TAG_STATS: &str = "_tts_tag_stats";

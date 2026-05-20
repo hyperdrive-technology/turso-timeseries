@@ -1,4 +1,5 @@
-use super::{DurationMicros, HypertableId, TimestampMicros};
+use super::ids::HypertableId;
+use super::{DurationMicros, TimestampMicros};
 
 /// Opaque chunk identifier.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]

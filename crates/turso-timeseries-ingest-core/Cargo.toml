@@ -1,0 +1,11 @@
+[package]
+name = "turso-timeseries-ingest-core"
+description = "Shared ingest buffering and batch encoding (no sockets/Turso)"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+turso-timeseries-core = { path = "../turso-timeseries-core" }

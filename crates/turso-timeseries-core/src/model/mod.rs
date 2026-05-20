@@ -1,19 +1,27 @@
+mod cardinality;
 mod chunk;
 mod hypertable;
+mod ids;
 mod point;
+mod point_v2;
 mod rollup;
 mod schema;
 mod segment;
 mod series;
+mod series_key;
 mod time;
 mod value;
 
+pub use cardinality::CardinalityPolicy;
 pub use chunk::{ChunkId, ChunkMeta, ChunkStats};
-pub use hypertable::{DurationMicros, FieldColumn, Hypertable, HypertableId};
+pub use hypertable::{DurationMicros, FieldColumn, Hypertable};
+pub use ids::{FieldId, HypertableId, SeriesId};
 pub use point::MetricPoint;
+pub use point_v2::{EncodedBatch, Point};
 pub use rollup::RollupPolicy;
 pub use schema::{ColumnRole, LogicalType};
 pub use segment::{Segment, SegmentHeader, SEGMENT_MAGIC, SEGMENT_VERSION};
 pub use series::SeriesKey;
+pub use series_key::SeriesKeySpec;
 pub use time::{parse_duration_micros, TimestampMicros};
 pub use value::FieldValue;
