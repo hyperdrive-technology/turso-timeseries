@@ -13,8 +13,13 @@ use std::fmt;
 
 pub mod migrations;
 
+pub use turso_timeseries_core as core;
+
 #[cfg(feature = "native-turso")]
 pub mod native_turso;
+
+#[cfg(feature = "native-turso")]
+pub use turso_timeseries_native::{Timeseries, MaintenanceOptions, MaintenanceReport, WriteStats};
 
 /// Crate-local result type.
 pub type Result<T> = std::result::Result<T, Error>;

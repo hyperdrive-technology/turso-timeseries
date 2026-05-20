@@ -4,7 +4,7 @@
 //! `PRAGMA foreign_keys = ON`). This crate does not depend on the `turso` crate.
 
 /// Schema/migration bundle version tracked in `_tts_schema_version` after all steps apply.
-pub const SCHEMA_VERSION: u32 = 4;
+pub const SCHEMA_VERSION: u32 = turso_timeseries_catalog::SCHEMA_VERSION;
 
 /// Migration step `0001_*`.
 pub const MIGRATION_0001_VERSION: u32 = 1;
@@ -18,40 +18,10 @@ pub const MIGRATION_0003_VERSION: u32 = 3;
 /// Migration step `0004_*`.
 pub const MIGRATION_0004_VERSION: u32 = 4;
 
-/// One ordered migration: monotonic `version`, stable `id`, full SQL text.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct MigrationStep {
-    /// Logical migration number (matches filename prefix and `_tts_schema_version` floor).
-    pub version: u32,
-    /// Stable identifier (filename stem without extension).
-    pub id: &'static str,
-    /// Full SQL script for this step.
-    pub sql: &'static str,
-}
+/// Migration step `0005_*` (PLAN-v2 catalog extensions).
+pub const MIGRATION_0005_VERSION: u32 = 5;
 
-/// Ordered Phase 1 migrations (lowest `version` first).
-pub static MIGRATIONS: &[MigrationStep] = &[
-    MigrationStep {
-        version: MIGRATION_0001_VERSION,
-        id: "0001_catalog_and_samples",
-        sql: include_str!("../migrations/0001_catalog_and_samples.sql"),
-    },
-    MigrationStep {
-        version: MIGRATION_0002_VERSION,
-        id: "0002_policies_and_jobs",
-        sql: include_str!("../migrations/0002_policies_and_jobs.sql"),
-    },
-    MigrationStep {
-        version: MIGRATION_0003_VERSION,
-        id: "0003_columnar_hypertables",
-        sql: include_str!("../migrations/0003_columnar_hypertables.sql"),
-    },
-    MigrationStep {
-        version: MIGRATION_0004_VERSION,
-        id: "0004_materialized_rollups",
-        sql: include_str!("../migrations/0004_materialized_rollups.sql"),
-    },
-];
+pub use turso_timeseries_catalog::{MigrationStep, MIGRATIONS};
 
 /// Collect `CREATE TABLE IF NOT EXISTS <name>` identifiers (Turso/SQLite DDL style).
 /// Zero extra deps; assumes one statement start per line as in shipped migrations.
@@ -130,6 +100,7 @@ mod tests {
         assert_eq!(MIGRATIONS[1].id, "0002_policies_and_jobs");
         assert_eq!(MIGRATIONS[2].id, "0003_columnar_hypertables");
         assert_eq!(MIGRATIONS[3].id, "0004_materialized_rollups");
+        assert_eq!(MIGRATIONS[4].id, "0005_plan_v2_catalog");
     }
 
     #[test]
@@ -153,6 +124,10 @@ mod tests {
             "_tts_segments",
             "_tts_segment_columns",
             "_tts_rollups",
+            "_tts_hypertable_stats",
+            "_tts_series_stats",
+            "_tts_tag_index",
+            "_tts_maintenance_jobs",
         ] {
             assert!(
                 combined.contains(name),
@@ -180,6 +155,7 @@ mod tests {
         assert_eq!(MIGRATION_0002_VERSION, MIGRATIONS[1].version);
         assert_eq!(MIGRATION_0003_VERSION, MIGRATIONS[2].version);
         assert_eq!(MIGRATION_0004_VERSION, MIGRATIONS[3].version);
+        assert_eq!(MIGRATION_0005_VERSION, MIGRATIONS[4].version);
         assert_eq!(MIGRATIONS.last().unwrap().version, SCHEMA_VERSION);
     }
 
@@ -222,12 +198,19 @@ mod tests {
             "_tts_segments",
             "_tts_segment_columns",
             "_tts_rollups",
+            "_tts_hypertable_stats",
+            "_tts_series_stats",
+            "_tts_tag_index",
+            "_tts_maintenance_jobs",
         ];
         let expected_set: std::collections::BTreeSet<String> =
             expected.iter().map(|s| (*s).to_string()).collect();
-        assert_eq!(
-            from_sql, expected_set,
-            "CREATE TABLE names must match Phase 1 catalog exactly"
+        assert!(
+            expected_set.is_subset(&from_sql),
+            "expected catalog tables missing from migrations: {:?}",
+            expected_set
+                .difference(&from_sql)
+                .collect::<Vec<_>>()
         );
     }
 

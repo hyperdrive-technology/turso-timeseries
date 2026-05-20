@@ -1,0 +1,14 @@
+[package]
+name = "turso-timeseries-arrow"
+description = "Optional Arrow export for turso-timeseries (native/server)"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+
+[features]
+default = []
+
+[dependencies]
+turso-timeseries-core = { path = "../turso-timeseries-core" }

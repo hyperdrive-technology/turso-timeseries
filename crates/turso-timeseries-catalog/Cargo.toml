@@ -1,0 +1,10 @@
+[package]
+name = "turso-timeseries-catalog"
+description = "Embedded catalog migrations for turso-timeseries"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+
+[dependencies]

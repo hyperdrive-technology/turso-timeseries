@@ -1,0 +1,27 @@
+{
+  "name": "@hyperdrive-technology/turso-timeseries",
+  "version": "0.1.0",
+  "description": "JavaScript helpers for loading the turso-timeseries WASM extension",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
+  },
+  "peerDependencies": {
+    "@tursodatabase/database-wasm": ">=0.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3"
+  },
+  "files": [
+    "dist"
+  ],
+  "license": "MIT OR Apache-2.0"
+}

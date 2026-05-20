@@ -1,0 +1,21 @@
+[package]
+name = "turso-timeseries-native"
+description = "Native Turso integration for turso-timeseries"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+turso-timeseries-core = { path = "../turso-timeseries-core" }
+turso-timeseries-catalog = { path = "../turso-timeseries-catalog" }
+turso = { version = "=0.6.0-pre.30", default-features = false }
+tokio = { version = "=1.52.3", features = ["macros", "rt-multi-thread"] }
+
+[dev-dependencies]
+tokio = { version = "=1.52.3", features = ["macros", "rt-multi-thread"] }
+
+[[test]]
+name = "write_read"
+path = "tests/write_read.rs"
